@@ -1,10 +1,13 @@
 package com.dev.kafka.api.controller;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +33,18 @@ public class LibraryEventsController {
 		libraryEventProducer.sendLibraryEventTwo.accept(libraryEvent);
 		return ResponseEntity.status(HttpStatus.CREATED)
 							.body(libraryEvent);
+	}
+	
+	@PutMapping(value = "/library-event")
+	public ResponseEntity<?> updateLibraryEvent(@RequestBody LibraryEvent libraryEvent) {
+		Optional<Integer> optionalLibraryEventId = Optional.ofNullable(libraryEvent.getLibraryEventId());
+		if (optionalLibraryEventId.isPresent()) {
+			libraryEvent.setLibraryEventType(LibraryEventType.UPDATE);
+			libraryEventProducer.sendLibraryEventTwo.accept(libraryEvent);
+			return ResponseEntity.status(HttpStatus.CREATED)
+								.body(libraryEvent);
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+							.body("Please pass the LibraryEventId");
 	}
 }
